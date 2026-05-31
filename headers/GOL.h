@@ -19,16 +19,24 @@ GOLboard*	GOLboardNew	(vec2 v);
 //Board destructor
 void		GOLboardDel	(GOLboard *b);
 
-enum GOLsetType{
-	GOL_ARR,
-	GOL_FILE
-};
+constexpr int GOL_ARR = 0;
+constexpr int GOL_FILE = 1;
 
 #define GOL_END -1
 
 //Sets a board's initial cell status given either an array
 //of vectors or a file
-void		GOLboardSet	( GOLboard *b, GOLsetType t, ...);
+void		GOLboardSet	(GOLboard *b, int t, ...);
+
+//Empties the given board
+void		GOLemptyBoard	(GOLboard *b);
+
+//Saves the game's current state
+void		GOLsaveState	(GOLboard *b);
+
+//Prints the board
+void		GOLboardPrint	(const GOLboard *b);
+
 
 
 /*-----------------Cell management------------------*/
@@ -42,5 +50,8 @@ void		GOLsetCellAlive		(const GOLboard *b, vec2 v);
 
 //Determines if the cell on (x, y) will survive until next generation
 bool		GOLwillCellSurvive	(const GOLboard *b, vec2 v);
+
+//Advances to the next generation
+void		GOLsetNexGen		(GOLboard *b);
 
 #endif

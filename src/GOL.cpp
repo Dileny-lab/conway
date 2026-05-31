@@ -4,11 +4,13 @@
 #include <cassert>
 #include <cstdarg>
 #include <cstdio>
+#include <ncurses.h>
 
 struct GOLboard{
 	int width = 10;
 	int height = 10;
 	int *cell = nullptr;
+	bool *next = nullptr;
 };
 
 
@@ -21,6 +23,8 @@ GOLboard*GOLboardNew(struct vec2 v)
 	b->height = v.y;
 	b->cell = (int *) calloc(v.x * v.y, sizeof(int));
 	assert(b->cell);
+	b->next = (bool *) calloc(v.x * v.y, sizeof(bool));
+	assert(b->next);
 
 	return b;
 }
@@ -28,10 +32,11 @@ GOLboard*GOLboardNew(struct vec2 v)
 void GOLboardDel(GOLboard *b)
 {
 	free(b->cell);
+	free(b->next);
 	free(b);
 }
 
-void GOLboardSet(GOLboard *b, enum GOLsetType t, ...)
+void GOLboardSet(GOLboard *b, int t, ...)
 {
 	va_list ap;
 	va_start(ap, t);
@@ -76,7 +81,42 @@ void GOLboardSet(GOLboard *b, enum GOLsetType t, ...)
 }
 
 #define GOLboardXY(b, x, y) ((b)->cell[(y) * (b)->width + (x)])
+#define GOLnextXY(b, x, y) ((b)->next[(y) * (b)->width + (x)])
 
+void GOLemptyBoard(GOLboard *b)
+{
+	assert(memset(b->cell, GOL_DEAD, sizeof(int) * b->width * b->height));
+}
+
+void GOLsaveState (GOLboard *b)
+{
+	FILE *f = fopen(".game_state", "w+");
+	if(f == nullptr){
+		fprintf(stderr, "Could not save the current game state!\n");
+		return;
+	};
+
+	for(int i = 0; i < b->height; i++){
+		for(int j = 0; j < b->width; j++){
+			fputc(GOLisCellAlive(b, (vec2){j, i}) ? 'x' : ' ', f);
+		}
+		fputc('\n', f);
+	}
+	fclose(f);
+}
+
+
+void GOLboardPrint(const struct GOLboard *b)
+{
+	erase();
+	for(int y = 0; y < b->height; y++){
+		for(int x = 0; x < b->width; x++){
+			char c = GOLisCellAlive(b, (struct vec2){x, y}) ? '#' : ' ';
+			mvaddch(y, x, c);
+		}
+	}
+	refresh();
+}
 
 int GOLisCellAlive(const GOLboard *b, struct vec2 v)
 {
@@ -110,4 +150,23 @@ bool GOLwillCellSurvive(const GOLboard *b, struct vec2 v)
 		return totalCells == 3;
 
 	return false;
+}
+
+
+void GOLsetNexGen(GOLboard *b)
+{
+	for(int y = 0; y < b->height; y++){
+		for(int x = 0; x < b->width; x++){
+			GOLnextXY(b, x, y) = GOLwillCellSurvive(b, (struct vec2){x, y});
+		}
+	}
+
+	GOLemptyBoard(b);
+	for(int y = 0; y < b->height; y++){
+		for(int x = 0; x < b->width; x++){
+			if(b->next[y * b->width + x])
+				GOLsetCellAlive(b, (struct vec2){x, y});
+		}
+	}
+
 }
