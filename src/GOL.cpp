@@ -5,6 +5,7 @@
 #include <cstdarg>
 #include <cstdio>
 #include <ncurses.h>
+#include <string>
 
 struct GOLboard{
 	int width = 10;
@@ -90,7 +91,8 @@ void GOLemptyBoard(GOLboard *b)
 
 void GOLsaveState (GOLboard *b)
 {
-	FILE *f = fopen(".game_state", "w+");
+	extern std::string CurrentGameSaveFile;
+	FILE *f = fopen(CurrentGameSaveFile.c_str(), "w+");
 	if(f == nullptr){
 		fprintf(stderr, "Could not save the current game state!\n");
 		return;
@@ -169,4 +171,29 @@ void GOLsetNexGen(GOLboard *b)
 		}
 	}
 
+}
+
+void GOLncursesInitialSetup()
+{
+	initscr();
+	noecho();
+	curs_set(false);
+	cbreak();
+	keypad(stdscr, true);
+	nodelay(stdscr, true);
+	refresh();
+}
+
+void GOLgetDefaultSave(void)
+{
+	extern std::string CurrentGameSaveFile;
+	FILE *f = fopen("defaultPath.txt", "r");
+	if(f == nullptr)
+		CurrentGameSaveFile = "./game_saves/defaultPastState.txt";
+	char *buff = (char *) calloc(1024, sizeof(char));
+	if(fread(buff, 1024, 1, f) == 0)
+		CurrentGameSaveFile = "./game_saves/defaultPastState.txt";
+	else
+		CurrentGameSaveFile = buff;
+	fclose(f);
 }

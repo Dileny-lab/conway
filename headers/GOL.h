@@ -31,16 +31,9 @@ void		GOLboardSet	(GOLboard *b, int t, ...);
 //Empties the given board
 void		GOLemptyBoard	(GOLboard *b);
 
-//Saves the game's current state
-void		GOLsaveState	(GOLboard *b);
-
-//Prints the board
-void		GOLboardPrint	(const GOLboard *b);
-
 
 
 /*-----------------Cell management------------------*/
-
 
 //Checks if a cell at (x,y) is alive
 int		GOLisCellAlive		(const GOLboard *b, vec2 v);
@@ -54,4 +47,21 @@ bool		GOLwillCellSurvive	(const GOLboard *b, vec2 v);
 //Advances to the next generation
 void		GOLsetNexGen		(GOLboard *b);
 
+
+
+/*--------------NCURSES management------------------*/
+
+//Initial ncurses setup for correct visualization
+void		GOLncursesInitialSetup();
+//
+//Prints the board
+void		GOLboardPrint	(const GOLboard *b);
+
+
+
+/*-----------------file management------------------*/
+void		GOLgetDefaultSave(void);
+
+//Saves the game's current state
+void		GOLsaveState	(GOLboard *b);
 #endif
