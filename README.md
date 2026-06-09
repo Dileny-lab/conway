@@ -76,16 +76,16 @@ Ejemplos de patrones:
 ......o............................
 ...................................
 
-         XXXXXXXXXX                
-                                   
-            X                  X   
-             X                    
-                        X          
-       X                           
-         X                        X
-       X                         X 
-                                  X
-      XXXXXXXXXXXXXXXXXX           
+\         XXXXXXXXXX                
+\                                   
+\            X                  X   
+\             X                    
+\                        X          
+\       X                           
+\         X                        X
+\       X                         X 
+\                                  X
+\      XXXXXXXXXXXXXXXXXX           
 
 ...................................
 ....bbb.......................b....
