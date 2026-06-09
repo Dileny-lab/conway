@@ -89,23 +89,6 @@ void GOLemptyBoard(GOLboard *b)
 	assert(memset(b->cell, GOL_DEAD, sizeof(int) * b->width * b->height));
 }
 
-void GOLsaveState (GOLboard *b)
-{
-	extern std::string CurrentGameSaveFile;
-	FILE *f = fopen(CurrentGameSaveFile.c_str(), "w+");
-	if(f == nullptr){
-		fprintf(stderr, "Could not save the current game state!\n");
-		return;
-	};
-
-	for(int i = 0; i < b->height; i++){
-		for(int j = 0; j < b->width; j++){
-			fputc(GOLisCellAlive(b, (vec2){j, i}) ? 'x' : ' ', f);
-		}
-		fputc('\n', f);
-	}
-	fclose(f);
-}
 
 
 void GOLboardPrint(const struct GOLboard *b)
@@ -184,16 +167,52 @@ void GOLncursesInitialSetup()
 	refresh();
 }
 
+void GOLncursesEnd()
+{
+	curs_set(true); 
+	echo();         
+	nocbreak();     
+	endwin();       
+}
+
 void GOLgetDefaultSave(void)
 {
 	extern std::string CurrentGameSaveFile;
+
 	FILE *f = fopen("defaultPath.txt", "r");
-	if(f == nullptr)
+	if (f == nullptr) {
 		CurrentGameSaveFile = "./game_saves/defaultPastState.txt";
+		return;
+	}
+
 	char *buff = (char *) calloc(1024, sizeof(char));
-	if(fread(buff, 1024, 1, f) == 0)
+	size_t bytesRead = fread(buff, 1, 1024, f);
+	fclose(f);
+
+	if (bytesRead == 0) {
 		CurrentGameSaveFile = "./game_saves/defaultPastState.txt";
-	else
-		CurrentGameSaveFile = buff;
+	}else {
+		while (bytesRead > 0 && (buff[bytesRead-1] == '\n' || buff[bytesRead-1] == '\r'))
+			buff[--bytesRead] = '\0';
+			CurrentGameSaveFile = buff;
+	}
+	free(buff);
+}
+
+void GOLsaveState (GOLboard *b)
+{
+	extern std::string CurrentGameSaveFile;
+	FILE *f = fopen(CurrentGameSaveFile.c_str(), "w+");
+	if(f == nullptr){
+		fprintf(stderr, "Could not save the current game state!\n");
+		return;
+	};
+
+	for(int i = 0; i < b->height; i++){
+		for(int j = 0; j < b->width; j++){
+			fputc(GOLisCellAlive(b, (vec2){j, i}) ? 'X' : ' ', f);
+		}
+		fputc('\n', f);
+	}
 	fclose(f);
 }

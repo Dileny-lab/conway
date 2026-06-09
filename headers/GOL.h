@@ -53,7 +53,10 @@ void		GOLsetNexGen		(GOLboard *b);
 
 //Initial ncurses setup for correct visualization
 void		GOLncursesInitialSetup();
-//
+
+//Cleans up ncurses
+void		GOLncursesEnd();
+
 //Prints the board
 void		GOLboardPrint	(const GOLboard *b);
 
